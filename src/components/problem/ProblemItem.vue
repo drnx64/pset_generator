@@ -11,7 +11,7 @@ const props = defineProps({
 const emit = defineEmits(['toggle'])
 
 const store = useTrackerStore()
-const showNote = ref(!!props.problem.note)
+const showNote = ref(false)
 
 function toggle() {
   if (store.activeCourse) {

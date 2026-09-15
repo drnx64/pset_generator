@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref } from 'vue'
 import { useTrackerStore } from '../../stores/tracker'
 
 const props = defineProps({
@@ -12,10 +12,7 @@ const store = useTrackerStore()
 const noteText = ref(props.problem.note || '')
 const textarea = ref(null)
 
-onMounted(async () => {
-  await nextTick()
-  textarea.value?.focus()
-})
+// No auto-focus — let user tap to focus
 
 function save() {
   const trimmed = noteText.value.trim()
