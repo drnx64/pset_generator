@@ -310,7 +310,7 @@ export const useTrackerStore = defineStore('tracker', () => {
 
   const showUndoToast = computed(() => undoStack.value.length > 0)
 
-  // ASCII tree copy
+  // ASCII tree copy — single course
   function copyAsTree(course) {
     let text = `${course.code} — ${course.title}\n`
     course.psets.forEach((pset, i) => {
@@ -325,6 +325,32 @@ export const useTrackerStore = defineStore('tracker', () => {
         text += `${childPrefix}${probPrefix}[${check}] ${prob.number}`
         if (prob.note) text += ` — ${prob.note}`
         text += '\n'
+      })
+    })
+    return text
+  }
+
+  // ASCII tree copy — all courses
+  function copyAllAsTree() {
+    let text = ''
+    courses.value.forEach((course, ci) => {
+      const isLastCourse = ci === courses.value.length - 1
+      const coursePrefix = isLastCourse ? '└── ' : '├── '
+      const childPrefix = isLastCourse ? '    ' : '│   '
+      text += `${coursePrefix}${course.code} — ${course.title}\n`
+      course.psets.forEach((pset, i) => {
+        const isLast = i === course.psets.length - 1
+        const prefix = isLast ? '└── ' : '├── '
+        const grandChildPrefix = isLast ? '    ' : '│   '
+        text += `${childPrefix}${prefix}PSET #${pset.number} — ${pset.title}\n`
+        pset.problems.forEach((prob, j) => {
+          const isLastProb = j === pset.problems.length - 1
+          const probPrefix = isLastProb ? '└── ' : '├── '
+          const check = prob.completed ? 'x' : ' '
+          text += `${childPrefix}${grandChildPrefix}${probPrefix}[${check}] ${prob.number}`
+          if (prob.note) text += ` — ${prob.note}`
+          text += '\n'
+        })
       })
     })
     return text
@@ -416,6 +442,7 @@ export const useTrackerStore = defineStore('tracker', () => {
     importCourse,
     undoDelete,
     copyAsTree,
+    copyAllAsTree,
     load,
   }
 })

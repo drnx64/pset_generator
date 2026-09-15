@@ -23,8 +23,8 @@ function copyTree() {
 }
 
 function copyLink() {
-  if (!store.courses.length) return
-  copyText(generateLink(store.courses))
+  if (!store.activeCourse) return
+  copyText(generateLink([store.activeCourse]))
   showCopyToast('Link copied')
 }
 
@@ -102,14 +102,14 @@ function onDrop(e, toIndex) {
           <button
             @click="copyTree"
             class="p-1.5 rounded-md hover:bg-surface-active transition-colors text-text-muted hover:text-text-secondary"
-            title="Copy course as ASCII tree"
+            title="Copy this course as ASCII tree"
           >
             <Copy class="w-4 h-4" />
           </button>
           <button
             @click="copyLink"
             class="p-1.5 rounded-md hover:bg-surface-active transition-colors text-text-muted hover:text-text-secondary"
-            title="Copy share link"
+            title="Copy share link for this course"
           >
             <Link2 class="w-4 h-4" />
           </button>

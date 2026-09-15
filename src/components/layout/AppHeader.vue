@@ -12,16 +12,16 @@ const { copyText } = useClipboard()
 const { generateLink } = useShareLink()
 const showCopyToast = inject('showCopyToast')
 
-function copyTree() {
-  if (!store.activeCourse) return
-  copyText(store.copyAsTree(store.activeCourse))
-  showCopyToast('Tree copied')
+function copyAllTree() {
+  if (!store.courses.length) return
+  copyText(store.copyAllAsTree())
+  showCopyToast('All courses tree copied')
 }
 
-function copyLink() {
+function copyAllLink() {
   if (!store.courses.length) return
   copyText(generateLink(store.courses))
-  showCopyToast('Link copied')
+  showCopyToast('All courses link copied')
 }
 </script>
 
@@ -39,18 +39,18 @@ function copyLink() {
       </div>
       <h1 class="text-sm font-semibold tracking-tight">PSET Tracker</h1>
     </div>
-    <div v-if="store.activeCourse" class="flex items-center gap-1">
+    <div v-if="store.courses.length" class="flex items-center gap-1">
       <button
-        @click="copyTree"
+        @click="copyAllTree"
         class="p-2 rounded-lg hover:bg-surface-active transition-colors text-text-muted hover:text-text-secondary"
-        title="Copy course as ASCII tree"
+        title="Copy all courses as ASCII tree"
       >
         <Copy class="w-4 h-4" />
       </button>
       <button
-        @click="copyLink"
+        @click="copyAllLink"
         class="p-2 rounded-lg hover:bg-surface-active transition-colors text-text-muted hover:text-text-secondary"
-        title="Copy share link"
+        title="Copy share link for all courses"
       >
         <Link2 class="w-4 h-4" />
       </button>

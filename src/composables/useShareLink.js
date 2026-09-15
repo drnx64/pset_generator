@@ -17,7 +17,7 @@ export function useShareLink() {
     const params = new URLSearchParams()
     params.set('v', '2')
     params.set('d', encoded)
-    return `${window.location.origin}${window.location.pathname}?${params.toString()}`
+    return `${window.location.origin}/share?${params.toString()}`
   }
 
   function parseLink() {
