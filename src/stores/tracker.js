@@ -221,7 +221,7 @@ export const useTrackerStore = defineStore('tracker', () => {
     }
   }
 
-  // Import course(s) from share link — single object or array
+  // Import course(s) from share link — merge intelligently, keep receiver's progress
   function importCourse(courseData) {
     const items = Array.isArray(courseData) ? courseData : [courseData]
     items.forEach(c => {
@@ -231,12 +231,32 @@ export const useTrackerStore = defineStore('tracker', () => {
         existing.title = toTitleCase(c.title || existing.title)
         if (c.color) existing.color = c.color
         c.psets.forEach(psetData => {
-          const alreadyExists = existing.psets.find(p => p.title === toTitleCase(psetData.title))
-          if (!alreadyExists) {
+          const title = toTitleCase(psetData.title)
+          const existingPset = existing.psets.find(p => p.title === title)
+          if (existingPset) {
+            // Merge: update due date only if receiver doesn't have one
+            if (!existingPset.dueDate && psetData.dueDate) {
+              existingPset.dueDate = psetData.dueDate
+            }
+            // Merge: add new problems, fill empty notes
+            ;(psetData.problems || []).forEach(prob => {
+              const existingProb = existingPset.problems.find(p => p.number === prob.number)
+              if (!existingProb) {
+                existingPset.problems.push({
+                  id: uuid(),
+                  number: prob.number,
+                  completed: false,
+                  note: prob.note || null,
+                })
+              } else if (!existingProb.note && prob.note) {
+                existingProb.note = prob.note
+              }
+            })
+          } else {
             existing.psets.push({
               id: uuid(),
               number: existing.psets.length + 1,
-              title: toTitleCase(psetData.title),
+              title,
               dueDate: psetData.dueDate || null,
               completed: false,
               problems: (psetData.problems || []).map(p => ({
