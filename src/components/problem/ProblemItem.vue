@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useTrackerStore } from '../../stores/tracker'
 import ProblemNote from './ProblemNote.vue'
 import { Check, StickyNote, X } from 'lucide-vue-next'
@@ -11,7 +11,7 @@ const props = defineProps({
 const emit = defineEmits(['toggle'])
 
 const store = useTrackerStore()
-const showNote = ref(false)
+const editingNote = ref(false)
 
 function toggle() {
   if (store.activeCourse) {
@@ -35,6 +35,14 @@ function deleteProblem() {
       emit('toggle')
     }
   }
+}
+
+function startEditNote() {
+  editingNote.value = true
+}
+
+function stopEditNote() {
+  editingNote.value = false
 }
 </script>
 
@@ -63,25 +71,24 @@ function deleteProblem() {
         {{ problem.number }}
       </span>
 
-      <!-- Note indicator / toggle -->
       <div class="flex-1" />
 
       <button
-        v-if="problem.note"
-        @click="showNote = !showNote"
-        class="p-1 rounded hover:bg-surface-active transition-colors text-accent"
+        v-if="problem.note && !editingNote"
+        @click="startEditNote"
+        class="p-1 rounded text-accent"
         title="View note"
       >
         <StickyNote class="w-3.5 h-3.5" />
       </button>
 
       <button
-        @click="showNote = !showNote"
+        v-else-if="!problem.note && !editingNote"
+        @click="startEditNote"
         class="p-1 rounded hover:bg-surface-active transition-colors text-text-muted hover:text-text-secondary sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
-        :class="showNote ? 'opacity-100 !text-accent' : ''"
         title="Add note"
       >
-        <StickyNote v-if="!problem.note" class="w-3.5 h-3.5" />
+        <StickyNote class="w-3.5 h-3.5" />
       </button>
 
       <button
@@ -93,12 +100,25 @@ function deleteProblem() {
       </button>
     </div>
 
-    <!-- Note editor — auto-expanded if has content -->
-    <div v-if="showNote" class="px-2 pb-1 ml-7">
+    <!-- Note preview — always shown if exists and not editing -->
+    <div
+      v-if="problem.note && !editingNote"
+      class="px-2 pb-1 ml-7"
+    >
+      <div
+        @click="startEditNote"
+        class="w-full px-3 py-2 text-xs rounded-lg border border-border/50 bg-surface-hover text-text-secondary cursor-text break-words"
+      >
+        {{ problem.note }}
+      </div>
+    </div>
+
+    <!-- Note editor — only when editing -->
+    <div v-if="editingNote" class="px-2 pb-1 ml-7">
       <ProblemNote
         :problem="problem"
-        @close="showNote = false"
-        @saved="(hasContent) => { if (!hasContent) showNote = false }"
+        @close="stopEditNote"
+        @saved="stopEditNote"
       />
     </div>
   </div>
