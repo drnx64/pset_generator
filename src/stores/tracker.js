@@ -221,57 +221,59 @@ export const useTrackerStore = defineStore('tracker', () => {
     }
   }
 
-  // Import entire course from share link
+  // Import course(s) from share link — single object or array
   function importCourse(courseData) {
-    const existing = courses.value.find(c => c.code === courseData.code)
-    if (existing) {
-      existing.title = toTitleCase(courseData.title || existing.title)
-      if (courseData.color) existing.color = courseData.color
-      courseData.psets.forEach(psetData => {
-        const alreadyExists = existing.psets.find(p => p.title === toTitleCase(psetData.title))
-        if (!alreadyExists) {
-          existing.psets.push({
-            id: uuid(),
-            number: existing.psets.length + 1,
-            title: toTitleCase(psetData.title),
-            dueDate: psetData.dueDate || null,
-            completed: false,
-            problems: (psetData.problems || []).map(p => ({
+    const items = Array.isArray(courseData) ? courseData : [courseData]
+    items.forEach(c => {
+      if (!c.code) return
+      const existing = courses.value.find(e => e.code === c.code)
+      if (existing) {
+        existing.title = toTitleCase(c.title || existing.title)
+        if (c.color) existing.color = c.color
+        c.psets.forEach(psetData => {
+          const alreadyExists = existing.psets.find(p => p.title === toTitleCase(psetData.title))
+          if (!alreadyExists) {
+            existing.psets.push({
               id: uuid(),
-              number: p.number,
+              number: existing.psets.length + 1,
+              title: toTitleCase(psetData.title),
+              dueDate: psetData.dueDate || null,
               completed: false,
-              note: p.note || null,
-            })),
-          })
-        }
-      })
-      renumberPsets(existing.id)
-      save()
-      return existing
-    }
-    const course = {
-      id: uuid(),
-      code: courseData.code,
-      title: toTitleCase(courseData.title || courseData.code),
-      color: courseData.color || getRandomPsetColor(),
-      psets: (courseData.psets || []).map((p, i) => ({
-        id: uuid(),
-        number: i + 1,
-        title: toTitleCase(p.title),
-        dueDate: p.dueDate || null,
-        completed: false,
-        problems: (p.problems || []).map(prob => ({
+              problems: (psetData.problems || []).map(p => ({
+                id: uuid(),
+                number: p.number,
+                completed: false,
+                note: p.note || null,
+              })),
+            })
+          }
+        })
+        renumberPsets(existing.id)
+      } else {
+        const course = {
           id: uuid(),
-          number: prob.number,
-          completed: false,
-          note: prob.note || null,
-        })),
-      })),
-    }
-    courses.value.push(course)
-    activeCourseId.value = course.id
+          code: c.code,
+          title: toTitleCase(c.title || c.code),
+          color: c.color || getRandomPsetColor(),
+          psets: (c.psets || []).map((p, i) => ({
+            id: uuid(),
+            number: i + 1,
+            title: toTitleCase(p.title),
+            dueDate: p.dueDate || null,
+            completed: false,
+            problems: (p.problems || []).map(prob => ({
+              id: uuid(),
+              number: prob.number,
+              completed: false,
+              note: prob.note || null,
+            })),
+          })),
+        }
+        courses.value.push(course)
+        activeCourseId.value = course.id
+      }
+    })
     save()
-    return course
   }
 
   // Undo support

@@ -1,6 +1,6 @@
 export function useShareLink() {
-  function generateLink(course) {
-    const data = {
+  function generateLink(courses) {
+    const data = courses.map(course => ({
       code: course.code,
       title: course.title,
       color: course.color,
@@ -12,7 +12,7 @@ export function useShareLink() {
           note: prob.note,
         })),
       })),
-    }
+    }))
     const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))))
     const params = new URLSearchParams()
     params.set('v', '2')
@@ -26,7 +26,8 @@ export function useShareLink() {
     try {
       const raw = decodeURIComponent(escape(atob(params.get('d'))))
       const data = JSON.parse(raw)
-      if (!data.code) return null
+      if (!Array.isArray(data) || !data.length) return null
+      if (!data[0].code) return null
       return data
     } catch {
       return null

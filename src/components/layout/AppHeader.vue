@@ -19,8 +19,8 @@ function copyTree() {
 }
 
 function copyLink() {
-  if (!store.activeCourse) return
-  copyText(generateLink(store.activeCourse))
+  if (!store.courses.length) return
+  copyText(generateLink(store.courses))
   showCopyToast('Link copied')
 }
 </script>
