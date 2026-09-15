@@ -40,6 +40,12 @@ onMounted(() => {
       <AlertCircle class="w-12 h-12 text-text-muted mx-auto" />
       <h2 class="text-lg font-semibold">Invalid or missing link</h2>
       <p class="text-sm text-text-secondary">This share link is invalid or has expired.</p>
+      <button
+        @click="router.push('/')"
+        class="px-4 py-2 text-sm rounded-lg bg-accent text-white hover:bg-accent-hover transition-colors font-medium"
+      >
+        Back to Home
+      </button>
     </div>
 
     <!-- Importing loading modal -->
