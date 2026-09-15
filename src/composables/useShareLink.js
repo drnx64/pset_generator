@@ -1,0 +1,37 @@
+export function useShareLink() {
+  function generateLink(course) {
+    const data = {
+      code: course.code,
+      title: course.title,
+      color: course.color,
+      psets: course.psets.map(p => ({
+        title: p.title,
+        dueDate: p.dueDate,
+        problems: p.problems.map(prob => ({
+          number: prob.number,
+          note: prob.note,
+        })),
+      })),
+    }
+    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))))
+    const params = new URLSearchParams()
+    params.set('v', '2')
+    params.set('d', encoded)
+    return `${window.location.origin}${window.location.pathname}?${params.toString()}`
+  }
+
+  function parseLink() {
+    const params = new URLSearchParams(window.location.search)
+    if (!params.has('d')) return null
+    try {
+      const raw = decodeURIComponent(escape(atob(params.get('d'))))
+      const data = JSON.parse(raw)
+      if (!data.code) return null
+      return data
+    } catch {
+      return null
+    }
+  }
+
+  return { generateLink, parseLink }
+}
